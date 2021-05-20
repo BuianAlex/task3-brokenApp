@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
-var User = '../models/user';
+const User = require('../models/user');
 
-module.exports = function (req, res, next) {
+module.exports = (req, res, next) => {
   if (req.method == 'OPTIONS') {
     next(); // allowing options as a method for request
   } else {

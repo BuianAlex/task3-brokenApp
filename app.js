@@ -4,18 +4,30 @@ const { API_PORT } = process.env;
 const app = express();
 const db = require('./db');
 const user = require('./controllers/usercontroller');
-const game = require('./controllers/gamecontroller');
+// const game = require('./controllers/gamecontroller');
 
-db.sync();
 app.use(express.json());
 app.use(
   express.urlencoded({
     extended: true,
   })
 );
+
 app.use('/api/auth', user);
 app.use(require('./middleware/validate-session'));
-app.use('/api/game', game);
-app.listen(API_PORT, () => {
-  console.log('App is listening on 4000');
-});
+// app.use('/api/game', game);
+
+db.authenticate()
+  .then(() => {
+    console.log('Connected to DB');
+    return db.sync();
+  })
+  .then(() => {
+    app.listen(API_PORT, function () {
+      console.log(`App is listening on ${API_PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error(`Error: ${err}`);
+    process.exit(1);
+  });

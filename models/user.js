@@ -1,39 +1,27 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
-module.exports = sequelize.define('game', {
-  title: {
-    type: DataTypes.STRING(25),
-    allowNull: false,
-  },
-
-  owner_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-
-  studio: {
+module.exports = sequelize.define('user', {
+  full_name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
 
-  esrb_rating: {
-    type: DataTypes.CHAR(5),
+  username: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
 
-  user_rating: {
-    type: DataTypes.INTEGER,
+  passwordHash: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+
+  email: {
+    type: DataTypes.STRING,
     allowNull: false,
     validate: {
-      min: 1,
-      max: 5,
+      isEmail: true,
     },
-  },
-
-  have_played: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
-    allowNull: false,
   },
 });
