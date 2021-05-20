@@ -2,58 +2,55 @@ const router = require('express').Router();
 const Game = require('../models/game');
 
 router.get('/all', (req, res) => {
-  Game.findAll({ where: { owner_id: req.user.id } }).then(
-    function findSuccess(data) {
+  Game.findAll({ where: { owner_id: req.user.id } })
+    .then((games) => {
       res.status(200).json({
-        games: games,
+        games,
         message: 'Data fetched.',
       });
-    },
-
-    function findFail() {
+    })
+    .catch(() => {
       res.status(500).json({
         message: 'Data not found',
       });
-    }
-  );
+    });
 });
 
 router.get('/:id', (req, res) => {
-  Game.findOne({ where: { id: req.params.id, owner_id: req.user.id } }).then(
-    function findSuccess(game) {
+  Game.findOne({ where: { id: req.params.id, owner_id: req.user.id } })
+    .then((game) => {
+      if (!game) {
+        return res.status(404).json({ message: 'ID not found.' });
+      }
       res.status(200).json({
-        game: game,
+        game,
       });
-    },
-
-    function findFail(err) {
+    })
+    .catch((err) => {
       res.status(500).json({
         message: 'Data not found.',
       });
-    }
-  );
+    });
 });
 
 router.post('/create', (req, res) => {
   Game.create({
     title: req.body.game.title,
-    owner_id: req.body.user.id,
+    owner_id: req.user.id,
     studio: req.body.game.studio,
     esrb_rating: req.body.game.esrb_rating,
     user_rating: req.body.game.user_rating,
     have_played: req.body.game.have_played,
-  }).then(
-    function createSuccess(game) {
+  })
+    .then((game) => {
       res.status(200).json({
-        game: game,
+        game,
         message: 'Game created.',
       });
-    },
-
-    function createFail(err) {
+    })
+    .catch((err) => {
       res.status(500).send(err.message);
-    }
-  );
+    });
 });
 
 router.put('/update/:id', (req, res) => {
@@ -65,26 +62,30 @@ router.put('/update/:id', (req, res) => {
       user_rating: req.body.game.user_rating,
       have_played: req.body.game.have_played,
     },
+
     {
+      returning: true,
       where: {
         id: req.params.id,
-        owner_id: req.user,
+        owner_id: req.user.id,
       },
     }
-  ).then(
-    function updateSuccess(game) {
+  )
+    .then((result) => {
+      const [calcUpdated, games] = result;
+      if (!calcUpdated) {
+        return res.status(404).json({ message: 'ID not found.' });
+      }
       res.status(200).json({
-        game: game,
+        game: games,
         message: 'Successfully updated.',
       });
-    },
-
-    function updateFail(err) {
+    })
+    .catch((err) => {
       res.status(500).json({
         message: err.message,
       });
-    }
-  );
+    });
 });
 
 router.delete('/remove/:id', (req, res) => {
@@ -93,20 +94,21 @@ router.delete('/remove/:id', (req, res) => {
       id: req.params.id,
       owner_id: req.user.id,
     },
-  }).then(
-    function deleteSuccess(game) {
+  })
+    .then((result) => {
+      if (result === 0) {
+        return res.status(404).json({ message: 'ID not found.' });
+      }
       res.status(200).json({
         game: game,
         message: 'Successfully deleted',
       });
-    },
-
-    function deleteFail(err) {
+    })
+    .catch((err) => {
       res.status(500).json({
         error: err.message,
       });
-    }
-  );
+    });
 });
 
 module.exports = router;
