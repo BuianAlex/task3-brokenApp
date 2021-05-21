@@ -1,8 +1,13 @@
 const router = require('express').Router();
-var bcrypt = require('bcryptjs');
-var jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-var User = require('../models/user');
+const User = require('../models/user');
+
+const userToResponse = (user) => {
+  const { id, full_name, username, email } = user;
+  return { id, full_name, username, email };
+};
 
 router.post('/signup', (req, res) => {
   User.create({
@@ -16,7 +21,7 @@ router.post('/signup', (req, res) => {
         expiresIn: 60 * 60 * 24,
       });
       res.status(200).json({
-        user: user,
+        user: userToResponse(user),
         token: token,
       });
     })
@@ -38,7 +43,7 @@ router.post('/signin', (req, res) => {
                 expiresIn: 60 * 60 * 24,
               });
               res.json({
-                user: user,
+                user: userToResponse(user),
                 message: 'Successfully authenticated.',
                 sessionToken: token,
               });

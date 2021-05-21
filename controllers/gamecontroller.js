@@ -100,7 +100,7 @@ router.delete('/remove/:id', (req, res) => {
         return res.status(404).json({ message: 'ID not found.' });
       }
       res.status(200).json({
-        game: game,
+        game: result,
         message: 'Successfully deleted',
       });
     })
